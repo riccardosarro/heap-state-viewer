@@ -1,21 +1,21 @@
 # How to use: run `gdb -x script.gdb`
 
-file {{tmpdir}}/code.c
+file {{tmpdir}}/code
 
 start
 
 b *malloc
 b *calloc
 b *free
-b *valloc
 b *realloc
-b *pvalloc
+# b *valloc
+# b *pvalloc
 
 c
 
 # check how to script gdb
 # We want to:
-$running = true
+# $running = true
 
 # loop until the program ends
 # at each break, we want to print the current state of the heap
@@ -26,8 +26,7 @@ $running = true
 #     info registers
 #     x/64xg $rsp
 #     end
-#   c
-# end
+#   cextret
 
   # after each break, we want to go to next step and dump memory (of chunks)
   # along with output of `heap` command 
