@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "ODC Project 2024 - Heap",
   "scripts": {
-    "start": "npm run start:frontend & npm run start:backend",
     "start:frontend": "cd workspaces/frontend && npm start",
-    "start:backend": "cd workspaces/backend && python3 src/server.py"
+    "start:backend": "dotenv -- python3 workspaces/backend/src/server.py",
+    "setup:backend": "cd workspaces/backend && pip install -r requirements.txt",
+    "setup:frontend": "cd workspaces/frontend && npm install"
   },
   "author": {
     "name": "Riccardo Sarro",
@@ -14,5 +15,9 @@
   "workspaces": [
     "./workspaces/**"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "cross-var": "^1.1.0",
+    "dotenv-cli": "^7.4.2"
+  }
 }

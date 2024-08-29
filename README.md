@@ -52,3 +52,37 @@ Faccio gdb script e metto breakpoint E dumpo la memoria ad ogni breakpoint
 Break prima della funzione
 Appena Dopo la funzione
 ```
+
+# How to Run
+In order to run the project, you need node.js (>=14) and python (>=3) installed on your machine.
+
+Clone the repository
+```bash
+git clone https://github.com/riccardosarro/odc-project.git
+```
+
+Change directory
+```bash
+cd odc-project
+```
+
+Now open two terminals, one for the frontend and one for the backend
+
+### Terminal 1 [Backend]
+```bash
+cd workspaces/backend/src
+pip install -r requirements.txt
+python server.py
+```
+
+### Terminal 2 [Frontend]
+```bash
+cd workspaces/frontend
+npm install
+npm start
+```
+Now it should open a browser window with the frontend
+
+Enjoy!
+
+[]: # (END)
