@@ -1,12 +1,12 @@
 // imports
-import React from "react";
+import React, { useEffect } from "react";
 import "./styles.css";
 // store
 import { useFlow } from "../../store/flow-context";
 // ui
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { Box, IconButton, Container, Grid } from "@mui/material";
+import { Box, Container, Grid } from "@mui/material";
 
 // types
 import type { FlowControlProps } from "./types";
@@ -31,6 +31,7 @@ const FlowControl: React.FC<FlowControlProps> = () => {
 
   const handleInit = () => {
     setIsLoading(true);
+    console.log("Compiling code..., ", flowState);
     sendCompile(flowState.code, {})
       .then((res) => {
         if ("error" in res) {
@@ -39,7 +40,11 @@ const FlowControl: React.FC<FlowControlProps> = () => {
           return;
         }
         const breakpoints = res.breakpoints;
-        flowDispatch({ type: "INIT", payload: { breakpoints } });
+        if (breakpoints.length === 0) {
+          console.error("No breakpoints found");
+        } else {
+          flowDispatch({ type: "INIT", payload: { breakpoints } });
+        }
         setIsLoading(false);
       })
       .catch((err) => {
@@ -47,6 +52,28 @@ const FlowControl: React.FC<FlowControlProps> = () => {
         setIsLoading(false);
       });
   };
+
+
+  const handleSave = () => {
+    // Your save action here
+    console.log("CTRL+S pressed");
+    handleInit();
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === "s") {
+        event.preventDefault();
+        handleSave();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <>
@@ -64,6 +91,7 @@ const FlowControl: React.FC<FlowControlProps> = () => {
                     style={{ border: "1px solid" }}
                     color="secondary"
                     size="large"
+                    disabled={flowState.bpIndex === 0}
                     onClick={handlePrev}
                   />
                 </Grid>
@@ -76,6 +104,7 @@ const FlowControl: React.FC<FlowControlProps> = () => {
                     icon={<ArrowForwardIcon />}
                     color="secondary"
                     size="large"
+                    disabled={flowState.bpIndex === flowState.breakpoints.length - 1}
                     onClick={handleNext}
                   />
                 </Grid>

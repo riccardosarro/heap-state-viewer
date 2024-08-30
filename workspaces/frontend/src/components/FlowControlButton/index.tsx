@@ -13,7 +13,7 @@ const FlowControlButton: React.FC<FlowControlButtonProps> = (props) => {
   delete buttonProps.icon;
   delete buttonProps.children;
   delete buttonProps.isLoading;
-  buttonProps.disabled = isLoading;
+  buttonProps.disabled = buttonProps.disabled || isLoading;
 
   if (icon) {
     return (
