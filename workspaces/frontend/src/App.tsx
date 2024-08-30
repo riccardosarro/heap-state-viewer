@@ -80,11 +80,13 @@ const App: React.FC = () => {
                       p: 2,
                       display: "flex",
                       flexDirection: "column",
-                      height: "50vh",
-                      minHeight: "365px",
+                      height: "100%",
+                      minHeight: "350px",
                     }}
                   >
-                    <CodeEditor theme={actualTheme} />
+                    <div style={{ height: "350px" }}>
+                      <CodeEditor theme={actualTheme} />
+                    </div>
                   </Paper>
                 </Item>
                 {/* FlowControl */}
@@ -94,6 +96,9 @@ const App: React.FC = () => {
                       p: 2,
                       display: "flex",
                       flexDirection: "column",
+                      height: "100%",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
                     <FlowControl />

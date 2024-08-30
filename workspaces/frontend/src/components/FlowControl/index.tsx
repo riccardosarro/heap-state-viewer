@@ -1,5 +1,5 @@
 // imports
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import "./styles.css";
 // store
 import { useFlow } from "../../store/flow-context";
@@ -17,6 +17,13 @@ const FlowControl: React.FC<FlowControlProps> = () => {
   const [flowState, flowDispatch] = useFlow();
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const flowStateRef = useRef(flowState);
+
+  // Keep ref updated with the latest flowState
+  useEffect(() => {
+    flowStateRef.current = flowState;
+  }, [flowState]);
+
   const handleNext = () => {
     flowDispatch({ type: "NEXT" });
   };
@@ -27,12 +34,12 @@ const FlowControl: React.FC<FlowControlProps> = () => {
 
   const handleReset = () => {
     flowDispatch({ type: "RESET" });
-  }
+  };
 
   const handleInit = () => {
     setIsLoading(true);
-    console.log("Compiling code..., ", flowState);
-    sendCompile(flowState.code, {})
+    console.log("Compiling code..., ", flowStateRef.current);
+    sendCompile(flowStateRef.current.code, {})
       .then((res) => {
         if ("error" in res) {
           console.error(res.error);
@@ -40,11 +47,7 @@ const FlowControl: React.FC<FlowControlProps> = () => {
           return;
         }
         const breakpoints = res.breakpoints;
-        if (breakpoints.length === 0) {
-          console.error("No breakpoints found");
-        } else {
-          flowDispatch({ type: "INIT", payload: { breakpoints } });
-        }
+        flowDispatch({ type: "INIT", payload: { breakpoints } });
         setIsLoading(false);
       })
       .catch((err) => {
@@ -53,11 +56,9 @@ const FlowControl: React.FC<FlowControlProps> = () => {
       });
   };
 
-
   const handleSave = () => {
-    // Your save action here
     console.log("CTRL+S pressed");
-    handleInit();
+    handleInit(); // This should now have access to the latest context state
   };
 
   useEffect(() => {

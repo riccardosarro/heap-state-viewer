@@ -20,7 +20,7 @@ const CodeEditor: React.FC<CodeEditorProps> = (props) => {
   };
 
   return (
-    <>
+    <div style={{height:"90%"}}>
       <div>Code Editor</div>
       <Divider style={{ padding: "4px" }} />
       <Editor
@@ -30,7 +30,7 @@ const CodeEditor: React.FC<CodeEditorProps> = (props) => {
         onChange={handleChange}
       />
       <Divider/>
-    </>
+    </div>
   );
 };
 
