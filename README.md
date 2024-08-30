@@ -15,7 +15,7 @@ ODC Project 2024 - Heap
         - Compile
         - Next
         - Prev
-    - Chunk Viewer 
+    - Breakpoints Control 
         - White: Unallocated
         - Orange: Top Chunk
         - Green: Allocated
@@ -39,7 +39,7 @@ Interfaccia web dove appare
 -codice (code-editor)
 -tab operazioni
 (Compila, next, Prev)
-- chunk viewer
+- Breakpoints Control
 Bianco non allocato, arancione top chunk, verde allocato
 
 Prendere il codice

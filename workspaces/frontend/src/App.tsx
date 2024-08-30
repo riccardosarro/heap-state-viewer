@@ -6,11 +6,9 @@ import {
   Container,
   createTheme,
   CssBaseline,
-  Grid,
   Paper,
+  Stack,
   ThemeProvider,
-  Button,
-  Toolbar,
   IconButton,
 } from "@mui/material";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -18,12 +16,12 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 // components
 import CodeEditor from "./components/CodeEditor";
 import FlowControl from "./components/FlowControl";
-import ChunkViewer from "./components/ChunkViewer";
+import BreakpointsControl from "./components/BreakpointsControl";
 import Copyright from "./components/Copyright";
+import Item from "./components/Item";
 
 // types
 import type { Theme } from "@mui/material";
-import { useFlow } from "./store/flow-context";
 
 const App: React.FC = () => {
   const [theme, setTheme] = useState<Theme | undefined>();
@@ -59,28 +57,38 @@ const App: React.FC = () => {
                 ? theme.palette.grey[100]
                 : theme.palette.grey[900],
             flexGrow: 1,
-            height: "100vh",
+            height: "100%",
             overflow: "auto",
           }}
         >
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              <Grid container direction={"column"} item xs={6} spacing={3}>
+            <Stack
+              spacing={{ xs: 4, sm: 3 }}
+              direction="row"
+              sx={{ width: "100%" }}
+            >
+              <Stack
+                spacing={{ xs: 1, sm: 2 }}
+                direction="column"
+                useFlexGap
+                sx={{ flexWrap: "wrap", width: "50%" }}
+              >
                 {/* CodeEditor */}
-                <Grid item>
+                <Item>
                   <Paper
                     sx={{
                       p: 2,
                       display: "flex",
                       flexDirection: "column",
                       height: "50vh",
+                      minHeight: "365px",
                     }}
                   >
                     <CodeEditor theme={actualTheme} />
                   </Paper>
-                </Grid>
+                </Item>
                 {/* FlowControl */}
-                <Grid item>
+                <Item>
                   <Paper
                     sx={{
                       p: 2,
@@ -90,23 +98,29 @@ const App: React.FC = () => {
                   >
                     <FlowControl />
                   </Paper>
-                </Grid>
-              </Grid>
-              <Grid item xs={6} spacing={3}>
-                {/* Chunk Viewer */}
-                <Grid item xs={12}>
+                </Item>
+              </Stack>
+              <Stack
+                spacing={{ xs: 1, sm: 2 }}
+                direction="column"
+                useFlexGap
+                sx={{ flexWrap: "wrap", width: "50%" }}
+              >
+                <Item>
+                  {/* Breakpoints Control */}
                   <Paper
                     sx={{
                       p: 2,
                       display: "flex",
                       flexDirection: "column",
+                      height: "100%",
                     }}
                   >
-                    <ChunkViewer />
+                    <BreakpointsControl />
                   </Paper>
-                </Grid>
-              </Grid>
-            </Grid>
+                </Item>
+              </Stack>
+            </Stack>
             <Copyright
               props={{ sx: { pt: 6 } }}
               themeButton={
