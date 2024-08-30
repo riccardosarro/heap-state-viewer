@@ -1,8 +1,9 @@
 import React, { createContext, useReducer, useContext } from "react";
+import { Breakpoint } from "../hooks/types";
 
 // Define the shape of your context state
 interface FlowState {
-  breakpoints: number[];
+  breakpoints: Breakpoint[];
   bpIndex: number;
   initialized: boolean;
   code: string;
@@ -12,8 +13,17 @@ const initialState: FlowState = {
   breakpoints: [],
   bpIndex: -1,
   initialized: false,
-  code: '#include <stdio.h>\n\nint main() {\n\tprintf("Hello, World!");\n\treturn 0;\n}',
-  // to add chunk viewer state
+/*
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int *a = malloc(sizeof(int));
+    free(a);
+    return 0;
+}
+*/code: '#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n\tint *a = malloc(sizeof(int));\n\tfree(a);\n\treturn 0;\n}',
+  // to add Breakpoints Control state
 };
 
 // ACTIONS
@@ -30,7 +40,7 @@ type SetCodeAction = typeof SET_CODE;
 
 // Define the shape of your actions
 type FlowAction =
-  | { type: InitAction; payload: { breakpoints: number[] } }
+  | { type: InitAction; payload: { breakpoints: Breakpoint[] } }
   | { type: NextAction }
   | { type: PrevAction }
   | { type: ResetAction }
@@ -77,6 +87,7 @@ const flowReducer = (state: FlowState, action: FlowAction): FlowState => {
     case RESET:
       return initialState;
     case SET_CODE:
+      console.log("setting code to", action.payload);
       return {
         ...state,
         code: action.payload,
