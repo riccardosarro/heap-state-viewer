@@ -3,7 +3,6 @@ import React from "react";
 import "./styles.css";
 // ui
 import { Button, CircularProgress, IconButton } from "@mui/material";
-import SaveIcon from "@mui/icons-material/Save";
 // types
 import type { FlowControlButtonProps } from "./types";
 

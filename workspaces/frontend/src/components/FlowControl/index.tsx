@@ -6,12 +6,14 @@ import { useFlow } from "../../store/flow-context";
 // ui
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { Box, Container, Grid } from "@mui/material";
+import { Box, Container, Divider, Grid } from "@mui/material";
+// components
+import FlowControlButton from "../FlowControlButton";
+// backend api hooks
+import { sendCompile } from "../../hooks/backend";
 
 // types
 import type { FlowControlProps } from "./types";
-import FlowControlButton from "../FlowControlButton";
-import { sendCompile } from "../../hooks/backend";
 
 const FlowControl: React.FC<FlowControlProps> = () => {
   const [flowState, flowDispatch] = useFlow();
@@ -79,10 +81,11 @@ const FlowControl: React.FC<FlowControlProps> = () => {
   return (
     <>
       <div>Flow Control</div>
+      <Divider sx={{width: "100%",  padding: "4px" }}/>
       <Box
         sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Container maxWidth="lg" sx={{ mt: 2, mb: 2 }}>
           <Grid container spacing={3}>
             {flowState.initialized ? (
               <>
