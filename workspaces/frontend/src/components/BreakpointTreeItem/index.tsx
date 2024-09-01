@@ -55,7 +55,7 @@ function CustomLabel({
   children,
   ...other
 }: CustomLabelProps) {
-  const addr = children?.toString().split(' ')[0];
+  const addr = children?.toString().split(' ')[0] || '';
   return (
     <TreeItem2Label
       {...other}
