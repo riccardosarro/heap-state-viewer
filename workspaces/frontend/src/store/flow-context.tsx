@@ -1,5 +1,6 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { Breakpoint } from "../hooks/types";
+// types
+import type { Breakpoint } from "../hooks/types";
 
 // Define the shape of your context state
 interface FlowState {
@@ -47,10 +48,16 @@ type FlowAction =
   | { type: SetCodeAction; payload: string }
 // Add more actions as needed
 
-// Define your context
+/**
+ * Define your contexts
+ */ 
 const FlowContext = createContext<
-  [FlowState, React.Dispatch<FlowAction>] | undefined
+  FlowState | undefined
 >(undefined);
+
+const FlowDispatchContext = createContext<React.Dispatch<FlowAction> | undefined>(
+  undefined
+);
 
 // Define your reducer
 const flowReducer = (state: FlowState, action: FlowAction): FlowState => {
@@ -87,7 +94,6 @@ const flowReducer = (state: FlowState, action: FlowAction): FlowState => {
     case RESET:
       return initialState;
     case SET_CODE:
-      console.log("setting code to", action.payload);
       return {
         ...state,
         code: action.payload,
@@ -102,13 +108,19 @@ export const FlowProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(flowReducer, initialState);
 
   return (
-    <FlowContext.Provider value={[state, dispatch]}>
-      {children}
+    <FlowContext.Provider value={state}>
+      <FlowDispatchContext.Provider value={dispatch}>
+        {children}
+      </FlowDispatchContext.Provider>
     </FlowContext.Provider>
   );
 };
 
-// Define a hook for easy access to the context
+
+/**
+ *  Define a hook for easy access to the context
+ */
+
 export const useFlow = () => {
   const context = useContext(FlowContext);
   if (context === undefined) {
@@ -116,3 +128,11 @@ export const useFlow = () => {
   }
   return context;
 };
+
+export const useFlowDispatch = () => {
+  const context = useContext(FlowDispatchContext);
+  if (context === undefined) {
+    throw new Error("useFlowDispatch must be used within a FlowProvider");
+  }
+  return context;
+}

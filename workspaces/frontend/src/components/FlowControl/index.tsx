@@ -1,8 +1,8 @@
 // imports
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect } from "react";
 import "./styles.css";
 // store
-import { useFlow } from "../../store/flow-context";
+import { useFlow, useFlowDispatch } from "../../store/flow-context";
 // ui
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -16,32 +16,36 @@ import { sendCompile } from "../../hooks/backend";
 import type { FlowControlProps } from "./types";
 
 const FlowControl: React.FC<FlowControlProps> = () => {
-  const [flowState, flowDispatch] = useFlow();
+  const flowState = useFlow();
+  const flowDispatch = useFlowDispatch();
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const flowStateRef = useRef(flowState);
+  const handleNext = useCallback(() => {
+    // console.log("Next", flowState.bpIndex, flowState.breakpoints.length, {
+    //   flowState,
+    // });
+    if (flowState.bpIndex < flowState.breakpoints.length - 1) {
+      flowDispatch({ type: "NEXT" });
+    }
+  }, [flowState, flowDispatch]);
 
-  // Keep ref updated with the latest flowState
-  useEffect(() => {
-    flowStateRef.current = flowState;
-  }, [flowState]);
-
-  const handleNext = () => {
-    flowDispatch({ type: "NEXT" });
-  };
-
-  const handlePrev = () => {
-    flowDispatch({ type: "PREV" });
-  };
+  const handlePrev = useCallback(() => {
+    // console.log("Prev", flowState.bpIndex, {
+    //   flowState,
+    // });
+    if (flowState.bpIndex > 0) {
+      flowDispatch({ type: "PREV" });
+    }
+  }, [flowState, flowDispatch]);
 
   const handleReset = () => {
     flowDispatch({ type: "RESET" });
   };
 
-  const handleInit = () => {
+  const handleInit = useCallback(() => {
     setIsLoading(true);
-    console.log("Compiling code..., ", flowStateRef.current);
-    sendCompile(flowStateRef.current.code, {})
+    // console.log("Compiling code..., ", flowState);
+    sendCompile(flowState.code, {})
       .then((res) => {
         if ("error" in res) {
           console.error(res.error);
@@ -56,39 +60,53 @@ const FlowControl: React.FC<FlowControlProps> = () => {
         console.error(err);
         setIsLoading(false);
       });
-  };
+  }, [flowState, flowDispatch]);
 
-  const handleSave = () => {
-    console.log("CTRL+S pressed");
-    handleInit(); // This should now have access to the latest context state
-  };
+  const handleSave = useCallback(() => {
+    // console.log("CTRL+S pressed");
+    handleInit();
+  }, [handleInit]);
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      // console.log("Key pressed", event.key);
+      if (event.ctrlKey) {
+        if (event.key === "s") {
+          event.preventDefault();
+          handleSave();
+        } else if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          // console.log("ArrowLeft pressed");
+          handlePrev();
+        } else if (event.key === "ArrowRight") {
+          event.preventDefault();
+          // console.log("ArrowRight pressed");
+          handleNext();
+        }
+      }
+    },
+    [handlePrev, handleNext, handleSave]
+  );
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === "s") {
-        event.preventDefault();
-        handleSave();
-      }
-    };
-
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [handleKeyDown]);
 
   return (
     <>
       <div>Flow Control</div>
-      <Divider sx={{width: "100%",  padding: "4px" }}/>
+      <Divider sx={{ width: "100%", padding: "4px" }} />
       <Box
         sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
         <Container maxWidth="lg" sx={{ mt: 2, mb: 2 }}>
-          <Grid container spacing={3}>
-            {flowState.initialized ? (
-              <>
+          {flowState.initialized ? (
+            <>
+              <Grid container spacing={3}>
                 <Grid item xs="auto">
                   <FlowControlButton
                     icon={<ArrowBackIcon />}
@@ -101,19 +119,30 @@ const FlowControl: React.FC<FlowControlProps> = () => {
                 </Grid>
                 <Grid item xs="auto">
                   {/* current step */}
-                  <div>{flowState.bpIndex}</div>
+                  <div style={{ padding: "10px", fontWeight: "550" }}>
+                    {flowState.bpIndex} / {flowState.breakpoints.length - 1}
+                  </div>
                 </Grid>
                 <Grid item xs="auto">
                   <FlowControlButton
                     icon={<ArrowForwardIcon />}
                     color="secondary"
                     size="large"
-                    disabled={flowState.bpIndex === flowState.breakpoints.length - 1}
+                    disabled={
+                      flowState.bpIndex === flowState.breakpoints.length - 1
+                    }
                     onClick={handleNext}
                   />
                 </Grid>
+              </Grid>
+              <br />
+              <Grid container spacing={3}>
                 <Grid item xs="auto">
-                  <FlowControlButton isLoading={isLoading} color="primary" onClick={handleInit}>
+                  <FlowControlButton
+                    isLoading={isLoading}
+                    color="primary"
+                    onClick={handleInit}
+                  >
                     COMPILE
                   </FlowControlButton>
                 </Grid>
@@ -122,15 +151,21 @@ const FlowControl: React.FC<FlowControlProps> = () => {
                     RESET
                   </FlowControlButton>
                 </Grid>
-              </>
-            ) : (
+              </Grid>
+            </>
+          ) : (
+            <Grid container spacing={3}>
               <Grid item xs={12}>
-                <FlowControlButton isLoading={isLoading} color="primary" onClick={handleInit}>
+                <FlowControlButton
+                  isLoading={isLoading}
+                  color="primary"
+                  onClick={handleInit}
+                >
                   COMPILE
                 </FlowControlButton>
               </Grid>
-            )}
-          </Grid>
+            </Grid>
+          )}
         </Container>
       </Box>
     </>

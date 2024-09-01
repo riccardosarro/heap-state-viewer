@@ -5,7 +5,7 @@ import "./styles.css";
 import { Button, Divider } from "@mui/material";
 import Editor from "@monaco-editor/react";
 // store
-import { useFlow } from "../../store/flow-context";
+import { useFlow, useFlowDispatch } from "../../store/flow-context";
 // types
 import type { OnChange } from "@monaco-editor/react";
 import type { CodeEditorProps } from "./types";
@@ -51,11 +51,12 @@ int main() {
 ];
 
 const CodeEditor: React.FC<CodeEditorProps> = (props) => {
-  const [flowState, flowDispatch] = useFlow();
+  const flowState = useFlow();
+  const flowDispatch = useFlowDispatch();
 
   const handleChange: OnChange = (value, ev) => {
-    console.log("ev is", ev);
-    console.log("value is", value);
+    // console.log("ev is", ev);
+    // console.log("value is", value);
     flowDispatch({ type: "SET_CODE", payload: value || "" });
   };
 
