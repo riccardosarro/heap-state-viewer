@@ -4,7 +4,6 @@ import "./styles.css";
 // ui
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
 import { Avatar, Divider, Stack } from "@mui/material";
-import { TreeViewBaseItem } from "@mui/x-tree-view";
 // icons
 import InfoIcon from "@mui/icons-material/Info";
 import WarningIcon from "@mui/icons-material/Warning";
@@ -16,6 +15,7 @@ import { useFlow } from "../../store/flow-context";
 import BreakpointTreeItem from "../BreakpointTreeItem";
 
 // types
+import type { TreeViewBaseItem} from "@mui/x-tree-view";
 import type { BreakpointsControlProps } from "./types";
 import type { Chunk } from "../../hooks/types";
 
@@ -101,10 +101,10 @@ const BreakpointsControl: React.FC<BreakpointsControlProps> = () => {
             slots={{
               expandIcon: AddIcon,
               collapseIcon: CloseIcon,
-              // endIcon: CloseSquare,
               item: BreakpointTreeItem,
             }}
             items={currentChunks}
+            expansionTrigger="iconContainer"
           />
         )}
       </Stack>
