@@ -3,6 +3,8 @@ import React, { useCallback, useEffect } from "react";
 import "./styles.css";
 // store
 import { useFlow, useFlowDispatch } from "../../store/flow-context";
+import { useSnackbar } from "notistack";
+import { SnackCloseAction } from "../../store/snacks-utils";
 // ui
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -19,6 +21,8 @@ const FlowControl: React.FC<FlowControlProps> = () => {
   const flowState = useFlow();
   const flowDispatch = useFlowDispatch();
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const handleNext = useCallback(() => {
     // console.log("Next", flowState.bpIndex, flowState.breakpoints.length, {
@@ -45,22 +49,38 @@ const FlowControl: React.FC<FlowControlProps> = () => {
   const handleInit = useCallback(() => {
     setIsLoading(true);
     // console.log("Compiling code..., ", flowState);
+    const infoKey = enqueueSnackbar("Compiling code...", {
+      variant: "info",
+      persist: true,
+    });
+    console.log("INFO KEY", infoKey);
     sendCompile(flowState.code, {})
       .then((res) => {
+        console.log("Compile response", res);
         if ("error" in res) {
-          console.error(res.error);
-          setIsLoading(false);
-          return;
+          throw new Error(res.error);
         }
         const breakpoints = res.breakpoints;
         flowDispatch({ type: "INIT", payload: { breakpoints } });
+        enqueueSnackbar("Code compiled successfully", {
+          variant: "success",
+        });
         setIsLoading(false);
+        closeSnackbar(infoKey);
       })
       .catch((err) => {
         console.error(err);
+        const message = `${err.message}. See backend logs for more details.`;
+        enqueueSnackbar(message, {
+          variant: "error",
+          key: "error."+infoKey,
+          action: SnackCloseAction(() => closeSnackbar("error."+infoKey)),
+          persist: true,
+        });
         setIsLoading(false);
+        closeSnackbar(infoKey);
       });
-  }, [flowState, flowDispatch]);
+  }, [flowState, flowDispatch, enqueueSnackbar, closeSnackbar]);
 
   const handleSave = useCallback(() => {
     // console.log("CTRL+S pressed");

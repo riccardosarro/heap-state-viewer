@@ -15,8 +15,6 @@ export type Chunk = {
   bk_nextsize: string;
 };
 
-type ChunkKey = keyof Chunk;
-
 export type Breakpoint = {
   id: number;
   function: string;

@@ -47,9 +47,9 @@ export const sendCompile = async (
     });
 
   // const lines = code.split("\n");
-  if ("error" in data) {
-    console.error(data.error);
-    return { breakpoints: []};
-  }
+  // if ("error" in data) {
+  //   console.error(data.error);
+  //   return { breakpoints: []};
+  // }
   return data;
 };
