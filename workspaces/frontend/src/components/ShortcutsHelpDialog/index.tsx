@@ -5,7 +5,6 @@ import "./styles.css";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 import CloseIcon from "@mui/icons-material/Close";
 import {
-  Dialog,
   DialogContent,
   DialogTitle,
   Divider,
@@ -13,11 +12,12 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import CustomDialog from "../CustomDialog";
 // types
 import type { ShortcutsHelpDialogProps } from "./types";
 import KeyboardKeysChip from "../KeyboardKeysChip";
 
-const ThemedDialog = styled(Dialog)(({ theme }) => ({
+const ThemedDialog = styled(CustomDialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
   },

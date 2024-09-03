@@ -2,13 +2,14 @@
 import React from 'react';
 import "./styles.css";
 // ui
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import CustomDialog from '../CustomDialog';
 // types
 import type { ConfirmDialogProps } from './types';
 
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({open, title, content, handleCancel, handleConfirm}) => {
   return (
-    <Dialog
+    <CustomDialog
         open={open}
         onClose={handleCancel}
         aria-labelledby="alert-dialog-title"
@@ -28,7 +29,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({open, title, content, hand
             Yes
           </Button>
         </DialogActions>
-      </Dialog>
+      </CustomDialog>
   );
 }
 

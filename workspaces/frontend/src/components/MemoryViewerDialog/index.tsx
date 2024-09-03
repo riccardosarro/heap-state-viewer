@@ -10,12 +10,12 @@ import { useSnackbar } from "notistack";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import CloseIcon from "@mui/icons-material/Close";
 import {
-  Dialog,
   DialogContent,
   DialogTitle,
   IconButton,
   styled,
 } from "@mui/material";
+import CustomDialog from "../CustomDialog";
 // components
 import LoadingComponent from "../LoadingComponent";
 import ConfirmDialog from "../ConfirmDialog";
@@ -24,7 +24,7 @@ import { HexViewer } from "react-hexviewer-ts";
 import type { MemoryViewerDialogProps } from "./types";
 import type { MemoryArray } from "../../hooks/types";
 
-const ThemedDialog = styled(Dialog)(({ theme }) => ({
+const ThemedDialog = styled(CustomDialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
   },
