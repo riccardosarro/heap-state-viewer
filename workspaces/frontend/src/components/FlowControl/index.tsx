@@ -1,14 +1,12 @@
 // imports
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import "./styles.css";
 // store
 import { useFlow, useFlowDispatch } from "../../store/flow-context";
 import { useSnackbar } from "notistack";
 import { SnackCloseAction } from "../../store/snacks-utils";
 // ui
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { Box, Container, Divider, Grid } from "@mui/material";
+import { Box, Container, Divider, Grid, Slider } from "@mui/material";
 // components
 import FlowControlButton from "../FlowControlButton";
 // backend api hooks
@@ -20,23 +18,34 @@ import type { FlowControlProps } from "./types";
 const FlowControl: React.FC<FlowControlProps> = () => {
   const flowState = useFlow();
   const flowDispatch = useFlowDispatch();
-  const [isLoading, setIsLoading] = React.useState(false);
-
+    const [isLoading, setIsLoading] = React.useState(false);
+    const marks = useMemo(() => {
+      let totalMarks = 10; // Desired number of marks
+      let breakpointsCount = flowState.breakpoints.length;
+      let interval = Math.max(1, Math.floor(breakpointsCount / totalMarks));
+      let marks = flowState.breakpoints
+        .map((_, i) => ({
+          value: i,
+          label: i.toString(),
+        }))
+        .filter(
+          (_, i) =>
+            (i + interval <= breakpointsCount && i % interval === 0) ||
+            i === breakpointsCount - 1
+        );
+      return marks;
+    }, [flowState.breakpoints]);
+  // snackbars
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
+  // handlers
   const handleNext = useCallback(() => {
-    // console.log("Next", flowState.bpIndex, flowState.breakpoints.length, {
-    //   flowState,
-    // });
     if (flowState.bpIndex < flowState.breakpoints.length - 1) {
       flowDispatch({ type: "NEXT" });
     }
   }, [flowState, flowDispatch]);
 
   const handlePrev = useCallback(() => {
-    // console.log("Prev", flowState.bpIndex, {
-    //   flowState,
-    // });
     if (flowState.bpIndex > 0) {
       flowDispatch({ type: "PREV" });
     }
@@ -46,9 +55,17 @@ const FlowControl: React.FC<FlowControlProps> = () => {
     flowDispatch({ type: "RESET" });
   };
 
+  const handleBpIndexChange = useCallback(
+    (event: Event, value: number | number[]) => {
+      if (typeof value === "number") {
+        flowDispatch({ type: "SET_BP_INDEX", payload: value });
+      }
+    },
+    [flowDispatch]
+  );
+
   const handleInit = useCallback(() => {
     setIsLoading(true);
-    // console.log("Compiling code..., ", flowState);
     const infoKey = enqueueSnackbar("Compiling code...", {
       variant: "info",
       persist: true,
@@ -73,8 +90,8 @@ const FlowControl: React.FC<FlowControlProps> = () => {
         const message = `${err.message}. See backend logs for more details.`;
         enqueueSnackbar(message, {
           variant: "error",
-          key: "error."+infoKey,
-          action: SnackCloseAction(() => closeSnackbar("error."+infoKey)),
+          key: "error." + infoKey,
+          action: SnackCloseAction(() => closeSnackbar("error." + infoKey)),
           persist: true,
         });
         setIsLoading(false);
@@ -83,24 +100,20 @@ const FlowControl: React.FC<FlowControlProps> = () => {
   }, [flowState, flowDispatch, enqueueSnackbar, closeSnackbar]);
 
   const handleSave = useCallback(() => {
-    // console.log("CTRL+S pressed");
     handleInit();
   }, [handleInit]);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      // console.log("Key pressed", event.key);
       if (event.ctrlKey) {
         if (event.key === "s") {
           event.preventDefault();
           handleSave();
         } else if (event.key === "ArrowLeft") {
           event.preventDefault();
-          // console.log("ArrowLeft pressed");
           handlePrev();
         } else if (event.key === "ArrowRight") {
           event.preventDefault();
-          // console.log("ArrowRight pressed");
           handleNext();
         }
       }
@@ -108,6 +121,7 @@ const FlowControl: React.FC<FlowControlProps> = () => {
     [handlePrev, handleNext, handleSave]
   );
 
+  // useEffects
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
 
@@ -116,47 +130,32 @@ const FlowControl: React.FC<FlowControlProps> = () => {
     };
   }, [handleKeyDown]);
 
+  // render
   return (
     <>
       <div>Flow Control</div>
       <Divider sx={{ width: "100%", padding: "4px" }} />
       <Box
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}
       >
         <Container maxWidth="lg" sx={{ mt: 2, mb: 2 }}>
           {flowState.initialized ? (
             <>
-              <Grid container spacing={3}>
-                <Grid item xs="auto">
-                  <FlowControlButton
-                    icon={<ArrowBackIcon />}
-                    style={{ border: "1px solid" }}
-                    color="secondary"
-                    size="large"
-                    disabled={flowState.bpIndex === 0}
-                    onClick={handlePrev}
-                  />
-                </Grid>
-                <Grid item xs="auto">
-                  {/* current step */}
-                  <div style={{ padding: "10px", fontWeight: "550" }}>
-                    {flowState.bpIndex} / {flowState.breakpoints.length - 1}
-                  </div>
-                </Grid>
-                <Grid item xs="auto">
-                  <FlowControlButton
-                    icon={<ArrowForwardIcon />}
-                    color="secondary"
-                    size="large"
-                    disabled={
-                      flowState.bpIndex === flowState.breakpoints.length - 1
-                    }
-                    onClick={handleNext}
-                  />
-                </Grid>
-              </Grid>
-              <br />
-              <Grid container spacing={3}>
+                <Slider
+                  sx={{ width: "100%" }}
+                  aria-label="Breakpoint Index"
+                  value={flowState.bpIndex}
+                  color="primary"
+                  onChange={handleBpIndexChange}
+                  getAriaValueText={(value) => "#" + value.toString()}
+                  valueLabelDisplay="auto"
+                  shiftStep={1}
+                  step={1}
+                  marks={marks}
+                  min={0}
+                  max={flowState.breakpoints.length - 1}
+                />
+              <Grid container spacing={3} sx={{display:'flex', justifyContent:'center', alignItems: 'center'}}>
                 <Grid item xs="auto">
                   <FlowControlButton
                     isLoading={isLoading}

@@ -5,6 +5,7 @@ import "./styles.scss";
 import { getMemory } from "../../hooks/backend";
 // store
 import { useFlow } from "../../store/flow-context";
+import { useSnackbar } from "notistack";
 // ui
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import CloseIcon from "@mui/icons-material/Close";
@@ -37,6 +38,7 @@ const ThemedDialog = styled(Dialog)(({ theme }) => ({
 const MemoryViewerDialog: React.FC<MemoryViewerDialogProps> = memo((props) => {
   const [open, setOpen] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const {enqueueSnackbar} = useSnackbar();
 
   const flowState = useFlow();
   // const chunkMemory = useChunkMemory();
@@ -62,6 +64,10 @@ const MemoryViewerDialog: React.FC<MemoryViewerDialogProps> = memo((props) => {
     }
     ).catch((err) => {
       console.error(err);
+      const message = err.message ? err.message : "Error Unknown. Failed to fetch memory data";
+      enqueueSnackbar(message, {
+        variant: "error"
+      });
       setOpen(false);
     });
   }

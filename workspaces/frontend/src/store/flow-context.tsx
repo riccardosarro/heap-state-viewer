@@ -38,6 +38,8 @@ const RESET = "RESET";
 type ResetAction = typeof RESET;
 const SET_CODE = "SET_CODE";
 type SetCodeAction = typeof SET_CODE;
+const SET_BP_INDEX = "SET_BP_INDEX";
+type SetBPIndexAction = typeof SET_BP_INDEX;
 
 // Define the shape of your actions
 type FlowAction =
@@ -46,6 +48,7 @@ type FlowAction =
   | { type: PrevAction }
   | { type: ResetAction }
   | { type: SetCodeAction; payload: string }
+  | { type: SetBPIndexAction; payload: number };
 // Add more actions as needed
 
 /**
@@ -97,6 +100,14 @@ const flowReducer = (state: FlowState, action: FlowAction): FlowState => {
       return {
         ...state,
         code: action.payload,
+      };
+    case SET_BP_INDEX:
+      if (action.payload < 0 || action.payload >= state.breakpoints.length) {
+        return state;
+      }
+      return {
+        ...state,
+        bpIndex: action.payload
       };
     default:
       return state;
