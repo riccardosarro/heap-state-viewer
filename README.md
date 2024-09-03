@@ -1,56 +1,62 @@
-ODC Project 2024 - Heap
+# ODC Project 2024 - Heap State Viewer
 
-# Project Overview
+## Project Overview
+The goal of this project is to create a web-based tool that allows users to write C code, compile it, and analyze its heap state at different points in the program's execution. The tool will display the memory state of the heap at each breakpoint, highlighting the top chunk, allocated chunks, and unallocated chunks.
 
-## Rough Outline
-1. The user writes C code in the web editor and clicks a "Compile and Analyze" button.
-2. Your frontend code sends a request to your backend with the C code.
-3. Your backend code writes the C code to a file, compiles it with gcc, and runs gdb on the resulting binary.
-4. The backend collects the output of gdb and sends it back to the frontend.
+### Rough Outline Specifications
+1. The user writes C code in the web editor and clicks a "Compile" button.
+2. The frontend code sends a request to your backend with the C code.
+3. The backend code writes the C code to a file, compiles it with gcc, and runs gdb on the resulting binary.
+4. The backend collects the output of gdb, collects chunks and bins state and memory, and sends it back to the frontend, preserving all the memory of the chunks.
 5. The frontend displays the output to the user.
+6. The user can use the slider to move between breakpoints, and the frontend will display the memory state at each breakpoint.
+7. The user can visualize the memory of a chunk by clicking the right icon.
 
+### Components and Technologies
 - Frontend (Web Interface - React)
     - Code Editor
     - Operations (breakpoints hopper)
         - Compile
         - Next
         - Prev
+        - Slider
     - Breakpoints Control 
-        - White: Unallocated
-        - Orange: Top Chunk
-        - Green: Allocated
+        - Chunk Memory Viewer
 - Backend (Flask)
     - GDB Script
     - Memory Dump
 
-# Frontend
+## Frontend
 
-React Web Interface
+React Web Interface with Code Editor
+#### Shortcuts
+You can see all the shortcuts by pressing the `?` icon at the end of the page, alongside the copyright.
 
-# Backend
+*Code Editor*
+- `Ctrl + S` - Compile
 
-Flask Server
+*Flow Control*
+- `Ctrl + ArrowRight` - Next breakpoint
+- `Ctrl + ArrowLeft` - Previous breakpoint
 
-### Notes for myself
-```notes
-Interfaccia web dove appare
--codice (code-editor)
--tab operazioni
-(Compila, next, Prev)
-- Breakpoints Control
-Bianco non allocato, arancione top chunk, verde allocato
+#### Memory State Viewer
+It uses the [react-hexviewer-ts](https://github.com/KondakovArtem/react-hexviewer-ts) library to display the memory state of the heap at each breakpoint. 
 
-Prendere il codice
-Compilo -g (debug info) -nopie
+There is a **size limit** (just a warning) of **10MB** for the memory dump file, since higher sizes of memory dumps *may* cause the application to slow down or crash.
 
-Faccio gdb script e metto breakpoint E dumpo la memoria ad ogni breakpoint
+## Backend API
+Flask Server with the following endpoints:
+- `/compile` - POST
+    - Request: `{ code: string }`
+    - Response: `{ success: boolean, message: string }`
+- `/memory/<bpId>/<addr>` - GET
+    - Response: `{ <addr>: string[] }`
+    
+    **bpId**: Breakpoint ID
+    **addr**: Memory Address (of the chunk)
 
-Break prima della funzione
-Appena Dopo la funzione
-```
-
-# How to Run
-In order to run the project, you need node.js (>=14) and python (>=3) installed on your machine.
+## How to Run
+In order to run the project, you need **node.js** *(>=14)* and **python** *(>=3)* installed on your machine.
 
 Clone the repository
 ```bash
@@ -84,5 +90,3 @@ npm run start:frontend
 Now it should open a browser window with the frontend
 
 Enjoy!
-
-[]: # (END)
