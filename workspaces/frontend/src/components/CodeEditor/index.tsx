@@ -48,6 +48,18 @@ int main() {
 
   return 0;
 }`,
+  `#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+  for (int i = 0; i < 5; i++) {
+    int* ptr = malloc(100);
+    int* ptr2 = malloc(300);
+    printf("Allocated memory block: %p\\n", ptr);
+    free(ptr);
+    free(ptr2);
+  }
+}`,
 ];
 
 const CodeEditor: React.FC<CodeEditorProps> = (props) => {
@@ -83,24 +95,17 @@ const CodeEditor: React.FC<CodeEditorProps> = (props) => {
       </div>
       <Divider sx={{ padding: 0, marginBottom: 2 }} />
       <div style={{ display: "flex", justifyContent: "space-evenly" }}>
-        <Button
-          onClick={setDefaultCodeHandler(0)}
-          color="secondary"
-          variant={
-            flowState.code === DEFAULT_CODES[0] ? "contained" : "outlined"
-          }
-        >
-          Example 1
-        </Button>
-        <Button
-          onClick={setDefaultCodeHandler(1)}
-          color="secondary"
-          variant={
-            flowState.code === DEFAULT_CODES[1] ? "contained" : "outlined"
-          }
-        >
-          Example 2
-        </Button>
+        {DEFAULT_CODES.map((_, idx) => (
+          <Button
+            onClick={setDefaultCodeHandler(idx)}
+            color="secondary"
+            variant={
+              flowState.code === DEFAULT_CODES[idx] ? "contained" : "outlined"
+            }
+          >
+            Example {idx + 1}
+          </Button>
+        ))}
       </div>
     </div>
   );
