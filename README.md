@@ -51,7 +51,7 @@ Flask Server with the following endpoints:
     - Response: `{ success: boolean, message: string }`
 - `/memory/<bpId>/<addr>` - GET
     - Response: `{ <addr>: string[] }`
-    
+
     **bpId**: Breakpoint ID
     **addr**: Memory Address (of the chunk)
 
@@ -66,6 +66,13 @@ git clone https://github.com/riccardosarro/odc-project.git
 Change directory
 ```bash
 cd odc-project
+```
+
+Add the environment variable
+```bash
+echo "PROJECT_PATH=$(pwd)" > .env
+echo "BACKEND_PATH=$(pwd)/workspaces/backend" >> .env
+echo "FRONTEND_PATH=$(pwd)/workspaces/frontend" >> .env
 ```
 
 Install the dependencies
