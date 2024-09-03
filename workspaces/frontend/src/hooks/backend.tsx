@@ -1,5 +1,16 @@
 // imports
-import { getBreakpoint, HandlerFunctions, isCompileResponse } from "./types";
+// guards
+import {
+  getBreakpoint,
+  getMemoryFromResponse,
+  isCompileResponse,
+  isMemoryResponse,
+} from "./types";
+// types
+import type {
+  HandlerFunctions,
+  MemoryArray,
+} from "./types";
 
 const backendUrl = "http://localhost:5000";
 
@@ -43,7 +54,7 @@ export const sendCompile = async (
       } else if (err instanceof Error) {
         errorMessage = err.message;
       }
-      return { error: errorMessage};
+      return { error: errorMessage };
     });
 
   // const lines = code.split("\n");
@@ -51,5 +62,41 @@ export const sendCompile = async (
   //   console.error(data.error);
   //   return { breakpoints: []};
   // }
+  return data;
+};
+
+export const getMemory = async (
+  bpId: number,
+  addr: string,
+  { success, error }: HandlerFunctions
+) => {
+  const data = await fetch(`${backendUrl}/memory/${bpId}/${addr}`)
+    .then((response) => {
+      return response.json();
+    })
+    .then((data: unknown) => {
+      let memoryData: MemoryArray = [];
+      if (!isMemoryResponse(data)) {
+        throw new Error("Invalid response");
+      }
+      if ("error" in data) {
+        throw new Error(data.error);
+      } else {
+        memoryData = getMemoryFromResponse(data);
+        success && success();
+      }
+      return memoryData;
+    })
+    .catch((err) => {
+      error && error();
+      let errorMessage: string = "Unknown error";
+      if (typeof err === "string") {
+        errorMessage = err;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      return { error: errorMessage };
+    });
+
   return data;
 };

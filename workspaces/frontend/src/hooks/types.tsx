@@ -31,6 +31,16 @@ export type CompileResponse = {
   breakpoints: Breakpoint[];
 };
 
+export type MemoryResponse = {
+  [addr: MemoryResponseWord]: MemoryResponseWord[];
+};
+
+export type MemoryResponseWord = `0x${string}`;
+
+export type MemoryByte = number;
+
+export type MemoryArray = MemoryByte[];
+
 export const cleanChunk = (chunk: Chunk): Chunk => {
   return {
     allocated: chunk.allocated,
@@ -96,6 +106,27 @@ export const getBreakpoint = (data: unknown): Breakpoint => {
   }
 };
 
+export const cleanMemory = (memory: MemoryResponseWord[]): MemoryArray => {
+  const memoryArray: MemoryArray = [];
+  for (const _word of memory) {
+    let word = _word.replace("0x", "");
+    while (word.length > 0) {
+      memoryArray.push(parseInt(word.slice(word.length - 2, word.length), 16));
+      word = word.slice(0, word.length - 2);
+    }
+  }
+  return memoryArray;
+};
+
+export const getMemoryFromResponse = (data: MemoryResponse): MemoryArray => {
+  const addresses = Object.keys(data);
+  if (addresses.length !== 1) {
+    throw new Error("Invalid memory addresses");
+  }
+  const memoryAddress = Object.keys(data)[0] as MemoryResponseWord;
+  return cleanMemory(data[memoryAddress]);
+};
+
 export const isCompileResponse = (
   data: unknown
 ): data is BackendResponse<CompileResponse> => {
@@ -108,5 +139,28 @@ export const isCompileResponse = (
       return true;
     }
   }
-  return false
+  return false;
+};
+
+export const isMemoryResponse = (
+  data: unknown
+): data is BackendResponse<MemoryResponse> => {
+  if (typeof data === "object" && data !== null) {
+    if ("error" in data) {
+      return true;
+    }
+    if (
+      Object.keys(data).every(
+        (key) =>
+          key.startsWith("0x") &&
+          Array.isArray(data[key as keyof typeof data]) &&
+          (data[key as keyof typeof data] as Array<any>).every(
+            (word) => typeof word === "string" && word.startsWith("0x")
+          )
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
 };
