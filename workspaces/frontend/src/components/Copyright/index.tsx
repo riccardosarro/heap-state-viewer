@@ -18,14 +18,14 @@ const Copyright: React.FC<CopyrightProps> = (props) => {
       {...props.props}
     >
       <ShortcutsHelpDialog />
-      <div style={{ height: "100%" }}>
+      <span style={{ height: "100%" }}>
         {"Copyright © "}
         <Link color="inherit" href="https://github.com/riccardosarro">
           Riccardo Sarro
         </Link>{" "}
         {new Date().getFullYear()}
         {"."}
-      </div>
+      </span>
       {props.themeButton}
     </Typography>
   );

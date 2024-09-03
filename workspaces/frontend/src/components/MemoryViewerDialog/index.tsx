@@ -1,6 +1,6 @@
 // imports
 import React from "react";
-import "./styles.css";
+import "./styles.scss";
 // ui
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import CloseIcon from "@mui/icons-material/Close";
@@ -10,8 +10,9 @@ import {
   DialogTitle,
   IconButton,
   styled,
-  Typography,
 } from "@mui/material";
+// components
+import { HexViewer } from "react-hexviewer-ts";
 // types
 import type { MemoryViewerDialogProps } from "./types";
 
@@ -29,6 +30,20 @@ const ThemedDialog = styled(Dialog)(({ theme }) => ({
 const MemoryViewerDialog: React.FC<MemoryViewerDialogProps> = (props) => {
   const [open, setOpen] = React.useState(false);
   // const chunkMemory = useChunkMemory();
+  // fill 0x00
+  const data = ((length) => {
+    var array = new Uint8Array(length);
+    window.crypto.getRandomValues(array);
+    return array;
+  })(50);
+
+
+  const fromHexString = (hexString: string): number =>  {
+    const hexNumber = hexString.replace(/^0x/, '');
+    return parseInt(hexNumber, 16);
+  }
+
+
 
   const handleClickOpen = () => {
     // dispatch(fetchChunkMemory(props.addr));
@@ -64,21 +79,7 @@ const MemoryViewerDialog: React.FC<MemoryViewerDialogProps> = (props) => {
           <CloseIcon />
         </IconButton>
         <DialogContent dividers>
-          <Typography gutterBottom>
-            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-            dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
-            ac consectetur ac, vestibulum at eros.
-          </Typography>
-          <Typography gutterBottom>
-            Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
-            Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor
-            auctor.
-          </Typography>
-          <Typography gutterBottom>
-            Aenean lacinia bibendum nulla sed consectetur. Praesent commodo
-            cursus magna, vel scelerisque nisl consectetur et. Donec sed odio
-            dui. Donec ullamcorper nulla non metus auctor fringilla.
-          </Typography>
+          <HexViewer children={Array.from(data)} />
         </DialogContent>
       </ThemedDialog>
     </React.Fragment>
