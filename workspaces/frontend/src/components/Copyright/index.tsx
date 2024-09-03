@@ -1,23 +1,34 @@
 // imports
-import React from 'react';
+import React from "react";
 import "./styles.css";
 // ui
-import { Link, Typography } from '@mui/material';
+import { Link, Typography } from "@mui/material";
 // types
-import type { CopyrightProps } from './types';
+import type { CopyrightProps } from "./types";
+import ShortcutsHelpDialog from "../ShortcutsHelpDialog";
 
 const Copyright: React.FC<CopyrightProps> = (props) => {
-    return (
-      <Typography variant="body2" color="text.secondary" align="center" {...props.props}>
-        {'Copyright © '}
+  return (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      justifyContent={"center"}
+      alignItems={"center"}
+      display={"flex"}
+      {...props.props}
+    >
+      <ShortcutsHelpDialog />
+      <span style={{ height: "100%" }}>
+        {"Copyright © "}
         <Link color="inherit" href="https://github.com/riccardosarro">
           Riccardo Sarro
-        </Link>{' '}
+        </Link>{" "}
         {new Date().getFullYear()}
-        {'.'}
-        {props.themeButton}
-      </Typography>
-    );
-}
+        {"."}
+      </span>
+      {props.themeButton}
+    </Typography>
+  );
+};
 
 export default Copyright;

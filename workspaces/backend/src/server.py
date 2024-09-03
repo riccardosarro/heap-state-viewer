@@ -238,6 +238,7 @@ def compile():
 # - Server will hold the latest compiled code in its own memory
 # - User can call /memory/<bp_id>/<addr> to retrieve the exact bytes in memory 
 #   in that address during that bp
+@app.route("/memory/<bp_id>/<addr>", methods=["GET"])
 def get_memory(bp_id: str, addr: str):
     # get memory addresses and their values
     if len(breakpoints) == 0:
