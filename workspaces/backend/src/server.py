@@ -75,9 +75,9 @@ def debug(tmp_dir):
         # retrieve chunks and their memory 
         chunks, memory = retrieve_chunks_and_memory(p, chunks)
         # print(f"Appending breakpoint #{len(breakpoints)} - {function} with {len(chunks)} chunks, memory addresses {memory.keys()}")
-
+        
         # retrieve bins
-        bins = {}
+        bins = retrieve_bins(p)
         
         # append breakpoint
         breakpoints.append(Breakpoint(chunks, bins, function, memory))
@@ -176,6 +176,48 @@ def retrieve_chunks_and_memory(p: process, chunks: list[str]):
             # print(_memory)
     return _chunks, _memory
 
+
+def retrieve_bins(p: process):
+    """
+    Retrieves the bins from the gdb process.
+    """
+    p.sendline(b"bins")
+    raw_bins = recvuntil(p, b"pwndbg> ")
+    # retrieving tcachebins
+    tcachebins, raw_bins = raw_bins.split("tcachebins")[1].split("fastbins")
+    tcachebins = tcachebins.split("\n")[:-1][1:]
+    if "empty" in tcachebins:
+        tcachebins = []
+    # retrieving fastbins
+    fastbins, raw_bins = raw_bins.split("unsortedbin")
+    fastbins = fastbins.split("\n")[:-1][1:]
+    if "empty" in fastbins:
+        fastbins = []
+    # retrieving unsortedbin
+    unsortedbin, raw_bins = raw_bins.split("smallbins")
+    unsortedbin = unsortedbin.split("\n")[:-1][1:]
+    if "empty" in unsortedbin:
+        unsortedbin = []
+    # retrieving smallbins
+    smallbins, raw_bins = raw_bins.split("largebins")
+    smallbins = smallbins.split("\n")[:-1][1:]
+    if "empty" in smallbins:
+        smallbins = []
+    # retrieving largebins
+    largebins, raw_bins = raw_bins.split("pwndbg>")
+    largebins = largebins.split("\n")[:-1][1:]
+    if "empty" in largebins:
+        largebins = []
+    return {
+        "tcachebins": tcachebins,
+        "fastbins": fastbins,
+        "unsortedbin": unsortedbin,
+        "smallbins": smallbins,
+        "largebins": largebins
+    }
+
+
+
 @app.route("/compile", methods=["POST"])
 def compile():
     global breakpoints
@@ -216,6 +258,7 @@ def compile():
                         "id": i,
                         "function": bp.function,
                         "chunks": [chunk.to_dict() for chunk in bp.chunks],
+                        "bins": bp.bins,
                     }
                 )
             cleanup(tmp_dir)
@@ -232,11 +275,9 @@ def compile():
 
 
 # /memory/<bp_id>/<addr>
-# TODO: put it in server.py and check if it works
-# Idea is:
 # - User will first have to compile code
-# - Server will hold the latest compiled code in its own memory
-# - User can call /memory/<bp_id>/<addr> to retrieve the exact bytes in memory 
+# - Server will hold the latest compiled code in its memory (only by the addresses of the chunks)
+# - User can call /memory/<bp_id>/<addr> to retrieve the exact bytes in memory (only from the chunks addresses)
 #   in that address during that bp
 @app.route("/memory/<bp_id>/<addr>", methods=["GET"])
 def get_memory(bp_id: str, addr: str):

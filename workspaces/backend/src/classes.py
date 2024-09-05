@@ -78,7 +78,7 @@ class Breakpoint:
     """
 
     _chunks: list[Chunk]
-    _bins: dict[str, str]
+    _bins: dict[str, list[str]]
     _function: str
     _memory: dict[str, str]
 

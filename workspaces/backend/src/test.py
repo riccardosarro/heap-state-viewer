@@ -91,10 +91,10 @@ def retrieve_chunks_and_memory(p: process, chunks: list[str]):
     for i, chunk in enumerate(chunks):
         # retrieve chunk info
         chunk = chunk.replace("\x01", "").replace("\x02", "")
-        input("Press Enter to continue...")
+        # input("Press Enter to continue...")
         values = chunk.split("\n")
         allocated = values[0]
-        print(allocated.encode())
+        # print(allocated.encode())
         values = values[1:]
         [addr, prev_size, size, fd, bk, fd_nextsize, bk_nextsize] = (
             value.split(": ", 1)[1] for value in values
@@ -156,8 +156,7 @@ def debug(tmp_dir):
         # print(f"Appending breakpoint #{len(breakpoints)} - {function} with {len(chunks)} chunks, memory addresses {memory.keys()}")
 
         # retrieve bins info
-        p.sendline(b"bins")
-        bins = recvuntil(p, b"pwndbg> ")
+        bins = retrieve_bins(p)
         # TODO: process
 
         # append breakpoint
@@ -206,6 +205,7 @@ def compile(code):
                         "id": i,
                         "function": bp.function,
                         "chunks": [chunk.to_dict() for chunk in bp.chunks],
+                        "bins": bp.bins,
                     }
                 )
             cleanup(tmp_dir)
@@ -243,6 +243,63 @@ def get_memory(bp_id: str, addr: str):
         return jsonify({"error": f"Internal server error: {e}"}), 500
     return jsonify({addr: bp.memory[addr]}), 200
 
+def retrieve_bins(p: process):
+    '''
+    bins output is 
+bins
+tcachebins
+0x1a0 [  1]: 0x55555555a760 ◂— 0x0
+0x1c0 [  2]: 0x555555559820 —▸ 0x555555559480 ◂— 0x0
+0x1e0 [  2]: 0x5555555592a0 —▸ 0x555555559640 ◂— 0x0
+fastbins
+empty
+unsortedbin
+all: 0x555555559de0 —▸ 0x7ffff7e1ace0 (main_arena+96) ◂— 0x555555559de0
+smallbins
+empty
+largebins
+empty
+'''
+    p.sendline(b"bins")
+    raw_bins = recvuntil(p, b"pwndbg> ")
+    print(raw_bins)
+    input("bins retrieved")
+    tcachebins, raw_bins = raw_bins.split("tcachebins")[1].split("fastbins")
+    tcachebins = tcachebins.split("\n")[:-1][1:]
+    if "empty" in tcachebins:
+        tcachebins = []
+    fastbins, raw_bins = raw_bins.split("unsortedbin")
+    fastbins = fastbins.split("\n")[:-1][1:]
+    if "empty" in fastbins:
+        fastbins = []
+    unsortedbin, raw_bins = raw_bins.split("smallbins")
+    unsortedbin = unsortedbin.split("\n")[:-1][1:]
+    if "empty" in unsortedbin:
+        unsortedbin = []
+    smallbins, raw_bins = raw_bins.split("largebins")
+    smallbins = smallbins.split("\n")[:-1][1:]
+    if "empty" in smallbins:
+        smallbins = []
+    largebins, raw_bins = raw_bins.split("pwndbg>")
+    largebins = largebins.split("\n")[:-1][1:]
+    if "empty" in largebins:
+        largebins = []
+    print(f"tcachebins: {tcachebins}")
+    print(f"fastbins: {fastbins}")
+    print(f"unsortedbin: {unsortedbin}")
+    print(f"smallbins: {smallbins}")
+    print(f"largebins: {largebins}")
+    print(raw_bins)
+    input("Press Enter to continue...")
+    return {
+        "tcachebins": tcachebins,
+        "fastbins": fastbins,
+        "unsortedbin": unsortedbin,
+        "smallbins": smallbins,
+        "largebins": largebins
+    }
+
+
 
 ## TEST
 
@@ -279,7 +336,6 @@ int main() {
 
 print("Compiling code")
 proxy_http(compile, code)
-
 
 # print("Getting memory of first breakpoint at addr 0x405000")
 # proxy_http(get_memory, "0", "0x405000")
