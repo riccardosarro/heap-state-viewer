@@ -1,4 +1,4 @@
-# ODC Project 2024 - Heap State Viewer
+# Heap State Viewer - ODC Project 2024
 
 ## Project Overview
 The goal of this project is to create a web-based tool that allows users to write C code, compile it, and analyze its heap state at different points in the program's execution. The tool will display the memory state of the heap at each breakpoint, highlighting the top chunk, allocated chunks, and unallocated chunks.
