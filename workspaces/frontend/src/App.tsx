@@ -80,6 +80,7 @@ const App: React.FC = () => {
                       p: 2,
                       display: "flex",
                       flexDirection: "column",
+                      height: "100%",
                     }}
                   >
                     <CodeEditor theme={actualTheme} />

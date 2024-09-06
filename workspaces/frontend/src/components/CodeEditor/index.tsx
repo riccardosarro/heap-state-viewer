@@ -1,11 +1,13 @@
 // imports
-import React from "react";
+import React, { useEffect } from "react";
 import "./styles.css";
 // ui
-import { Button, Divider } from "@mui/material";
+import { Box, Button, Divider } from "@mui/material";
 import Editor from "@monaco-editor/react";
 // store
+import { useSnackbar } from "notistack";
 import { useFlow, useFlowDispatch } from "../../store/flow-context";
+import { loadCode, saveCode } from "../../hooks/localStorage";
 // types
 import type { OnChange } from "@monaco-editor/react";
 import type { CodeEditorProps } from "./types";
@@ -65,11 +67,30 @@ int main() {
 const CodeEditor: React.FC<CodeEditorProps> = (props) => {
   const flowState = useFlow();
   const flowDispatch = useFlowDispatch();
+  const { enqueueSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    const errorHandler = () => {
+      enqueueSnackbar("Failed to load code from Local Storage", {variant: "error"});
+    }
+    const code = loadCode({error: errorHandler});
+    if (code) {
+      flowDispatch({ type: "SET_CODE", payload: code });
+    }
+  }, [enqueueSnackbar, flowDispatch]);
+
+  const handleCodeChange = (code: string) => {
+    const errorHandler = () => {
+      enqueueSnackbar("Failed to save code to Local Storage", {variant: "error"});
+    }
+    saveCode(code, {error:errorHandler});
+    flowDispatch({ type: "SET_CODE", payload: code });
+  }
 
   const handleChange: OnChange = (value, ev) => {
     // console.log("ev is", ev);
     // console.log("value is", value);
-    flowDispatch({ type: "SET_CODE", payload: value || "" });
+    handleCodeChange(value || "" );
   };
 
   const setDefaultCodeHandler = (idx: number) => {
@@ -77,24 +98,30 @@ const CodeEditor: React.FC<CodeEditorProps> = (props) => {
       if (flowState.code === DEFAULT_CODES[idx]) {
         return;
       }
-      flowDispatch({ type: "SET_CODE", payload: DEFAULT_CODES[idx] });
+      handleCodeChange(DEFAULT_CODES[idx]);
     };
   };
 
   return (
-    <div style={{ height: "90%" }}>
+    <div style={{ height: "100%" }}>
       <div>Code Editor</div>
       <Divider style={{ padding: "4px" }} />
-      <div style={{ height: "240px" }}>
+      <Box sx={{ height: "250px" }}>
         <Editor
           theme={props.theme?.palette.mode === "dark" ? "vs-dark" : "light"}
           defaultLanguage="c"
           value={flowState.code}
           onChange={handleChange}
         />
-      </div>
+      </Box>
       <Divider sx={{ padding: 0, marginBottom: 2 }} />
-      <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          alignItems: "center",
+        }}
+      >
         {DEFAULT_CODES.map((_, idx) => (
           <Button
             onClick={setDefaultCodeHandler(idx)}
@@ -106,7 +133,7 @@ const CodeEditor: React.FC<CodeEditorProps> = (props) => {
             Example {idx + 1}
           </Button>
         ))}
-      </div>
+      </Box>
     </div>
   );
 };
