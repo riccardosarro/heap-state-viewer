@@ -29,6 +29,10 @@ The goal of this project is to create a web-based tool that allows users to writ
 ## Frontend
 
 React Web Interface with Code Editor
+
+#### LocalStorage API
+It uses the `localStorage` API to store the code edits, so you can close or reload the page without losing your code.
+
 #### Shortcuts
 You can see all the shortcuts by pressing the `?` icon at the end of the page, alongside the copyright.
 
@@ -48,9 +52,10 @@ There is a **size limit** (just a warning) of **10MB** for the memory dump file,
 Flask Server with the following endpoints:
 - `/compile` - POST
     - Request: `{ code: string }`
-    - Response: `{ success: boolean, message: string }`
+    - Response: `{ breakpoints: Breakpoint[] } | { error: string }`
+    (see src for Breakpoint structure)
 - `/memory/<bpId>/<addr>` - GET
-    - Response: `{ <addr>: string[] }`
+    - Response: `{ <addr>: string[] } | { error: string }`
 
     **bpId**: Breakpoint ID
     **addr**: Memory Address (of the chunk)
