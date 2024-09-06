@@ -70,10 +70,8 @@ const FlowControl: React.FC<FlowControlProps> = () => {
       variant: "info",
       persist: true,
     });
-    console.log("INFO KEY", infoKey);
     sendCompile(flowState.code, {})
       .then((res) => {
-        console.log("Compile response", res);
         if ("error" in res) {
           throw new Error(res.error);
         }

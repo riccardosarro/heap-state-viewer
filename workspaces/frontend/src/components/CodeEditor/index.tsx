@@ -88,8 +88,6 @@ const CodeEditor: React.FC<CodeEditorProps> = (props) => {
   }
 
   const handleChange: OnChange = (value, ev) => {
-    // console.log("ev is", ev);
-    // console.log("value is", value);
     handleCodeChange(value || "" );
   };
 
