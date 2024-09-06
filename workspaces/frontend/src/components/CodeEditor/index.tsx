@@ -122,6 +122,7 @@ const CodeEditor: React.FC<CodeEditorProps> = (props) => {
       >
         {DEFAULT_CODES.map((_, idx) => (
           <Button
+            key={"btn.example-" + idx}
             onClick={setDefaultCodeHandler(idx)}
             color="secondary"
             variant={

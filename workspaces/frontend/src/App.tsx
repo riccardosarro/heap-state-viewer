@@ -28,7 +28,7 @@ const App: React.FC = () => {
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
 
   const checkScreenSize = () => {
-    if (window.innerWidth < 1150) {
+    if (window.innerWidth < 1100) {
       setIsSmallScreen(true);
     } else {
       setIsSmallScreen(false);
