@@ -54,7 +54,6 @@ def debug(tmp_dir):
 
     # populate breakpoints
     while True:
-        # print("1")
         p.sendline(b"nextret")
         res = recvuntil(p, b"pwndbg> ")
         if "exited normally" in res or "The program is not being run." in res:
@@ -148,7 +147,7 @@ def retrieve_chunks_and_memory(p: process, chunks: list[str]):
         # input("Press Enter to continue...")
         values = chunk.split("\n")
         allocated = values[0]
-        print(allocated.encode())
+        # print(allocated.encode())
         values = values[1:]
         [addr, prev_size, size, fd, bk, fd_nextsize, bk_nextsize] = (
             value.split(": ", 1)[1] for value in values
