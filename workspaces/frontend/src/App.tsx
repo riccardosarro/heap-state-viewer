@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
+// store
+import { loadTheme, saveTheme } from "./hooks/localStorage";
 // ui
 import {
   Box,
@@ -37,7 +39,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // init
-    const defaultTheme = createTheme();
+    const savedTheme = loadTheme({});
+    const defaultTheme = createTheme({palette: {mode: savedTheme || "light"}});
     setTheme(defaultTheme);
 
     // check screen size
@@ -55,6 +58,7 @@ const App: React.FC = () => {
           mode: prevTheme?.palette.mode === "dark" ? "light" : "dark",
         },
       });
+      saveTheme(newTheme.palette.mode, {});
       return newTheme;
     });
   };
