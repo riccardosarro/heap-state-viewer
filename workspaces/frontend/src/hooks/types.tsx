@@ -15,10 +15,19 @@ export type Chunk = {
   bk_nextsize: string;
 };
 
+export type Bins = {
+  tcachebins: string[];
+  fastbins: string[];
+  unsortedbin: string[];
+  smallbins: string[];
+  largebins: string[];
+}
+
 export type Breakpoint = {
   id: number;
   function: string;
   chunks: Chunk[];
+  bins: Bins;
 };
 
 export type BackendResponse<T> = T | ErrorResponse;
@@ -40,6 +49,23 @@ export type MemoryResponseWord = `0x${string}`;
 export type MemoryByte = number;
 
 export type MemoryArray = MemoryByte[];
+
+export const isBins = (data: unknown): data is Bins => {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    Array.isArray((data as Bins).tcachebins) &&
+    (data as Bins).tcachebins.every((bin) => typeof bin === "string") &&
+    Array.isArray((data as Bins).fastbins) &&
+    (data as Bins).fastbins.every((bin) => typeof bin === "string") &&
+    Array.isArray((data as Bins).unsortedbin) &&
+    (data as Bins).unsortedbin.every((bin) => typeof bin === "string") &&
+    Array.isArray((data as Bins).smallbins) &&
+    (data as Bins).smallbins.every((bin) => typeof bin === "string") &&
+    Array.isArray((data as Bins).largebins) &&
+    (data as Bins).largebins.every((bin) => typeof bin === "string")
+  );
+}
 
 export const cleanChunk = (chunk: Chunk): Chunk => {
   return {
@@ -84,6 +110,7 @@ export const cleanBreakpoint = (breakpoint: Breakpoint): Breakpoint => {
     id: breakpoint.id,
     function: breakpoint.function,
     chunks: breakpoint.chunks.map(cleanChunk),
+    bins: breakpoint.bins,
   };
 };
 
@@ -95,6 +122,7 @@ export const isBreakpoint = (data: unknown): data is Breakpoint => {
     typeof (data as Breakpoint).function === "string" &&
     Array.isArray((data as Breakpoint).chunks) &&
     (data as Breakpoint).chunks.every(isChunk)
+    && isBins((data as Breakpoint).bins)
   );
 };
 
