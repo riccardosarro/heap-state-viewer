@@ -65,12 +65,12 @@ In order to run the project, you need **node.js** *(>=14)* and **python** *(>=3)
 
 Clone the repository
 ```bash
-git clone https://github.com/riccardosarro/odc-project.git
+git clone https://github.com/riccardosarro/heap-state-viewer.git
 ```
 
 Change directory
 ```bash
-cd odc-project
+cd heap-state-viewer
 ```
 
 Add the environment variable
